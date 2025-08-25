@@ -1,0 +1,23 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: deploy-app-task
+  namespace: pipelines
+spec:
+  params:
+    - name: manifest-dir
+      type: string
+      default: "k8s"
+    - name: namespace
+      type: string
+      default: "pipelines"
+  steps:
+    - name: deploy
+      image: quay.io/openshift/origin-cli:latest
+      script: |
+        echo "Applying manifests from $(params.manifest-dir)"
+        oc apply -f $(params.manifest-dir) -n $(params.namespace)
+        echo "Waiting for rollout..."
+        DEPLOY=$(oc get deploy -n $(params.namespace) -o jsonpath='{.items[0].metadata.name}')
+        oc rollout status deploy/$DEPLOY -n $(params.namespace)
+

@@ -1,0 +1,26 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: build-image-task
+  namespace: pipelines
+spec:
+  workspaces:
+    - name: source
+  params:
+    - name: image-url
+      type: string
+    - name: dockerfile
+      type: string
+      default: ./Dockerfile
+    - name: context
+      type: string
+      default: .
+  steps:
+    - name: build
+      image: quay.io/buildah/stable:v1.23.1
+      securityContext:
+        privileged: true   # Required for buildah inside OCP
+      script: |
+        buildah bud --tls-verify=false -f $(params.dockerfile) -t $(params.image-url) $(workspaces.source.path)/$(params.context)
+        buildah push --tls-verify=false $(params.image-url)
+
