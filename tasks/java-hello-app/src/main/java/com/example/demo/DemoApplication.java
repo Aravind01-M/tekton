@@ -14,7 +14,7 @@ public class DemoApplication {
 
     @GetMapping("/hello")
     public String hello() {
-        return "Hello, OpenShift! && Congratulations !!<>..><><><";
+        return "Hello, OpenShift! && Congratulations !!!<>..><><><";
     }
 }
 
